@@ -62,7 +62,7 @@ func parseConnectParams(dsn string) (connectParams, error) {
 		var err error
 		p.logFlags, err = strconv.ParseUint(strlog, 10, 64)
 		if err != nil {
-			return p, fmt.Errorf("Invalid log parameter '%s': %s", strlog, err.Error())
+			return p, fmt.Errorf("Invalid log parameter '%s': %w", strlog, err)
 		}
 	}
 	server := params["server"]
@@ -84,8 +84,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 		var err error
 		p.port, err = strconv.ParseUint(strport, 10, 16)
 		if err != nil {
-			f := "Invalid tcp port '%v': %v"
-			return p, fmt.Errorf(f, strport, err.Error())
+			f := "Invalid tcp port '%v': %w"
+			return p, fmt.Errorf(f, strport, err)
 		}
 	}
 
@@ -97,8 +97,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 		var err error
 		psize, err := strconv.ParseUint(strpsize, 0, 16)
 		if err != nil {
-			f := "Invalid packet size '%v': %v"
-			return p, fmt.Errorf(f, strpsize, err.Error())
+			f := "Invalid packet size '%v': %w"
+			return p, fmt.Errorf(f, strpsize, err)
 		}
 
 		// Ensure packet size falls within the TDS protocol range of 512 to 32767 bytes
@@ -120,8 +120,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 	if strconntimeout, ok := params["connection timeout"]; ok {
 		timeout, err := strconv.ParseUint(strconntimeout, 10, 64)
 		if err != nil {
-			f := "Invalid connection timeout '%v': %v"
-			return p, fmt.Errorf(f, strconntimeout, err.Error())
+			f := "Invalid connection timeout '%v': %w"
+			return p, fmt.Errorf(f, strconntimeout, err)
 		}
 		p.conn_timeout = time.Duration(timeout) * time.Second
 	}
@@ -129,8 +129,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 	if strdialtimeout, ok := params["dial timeout"]; ok {
 		timeout, err := strconv.ParseUint(strdialtimeout, 10, 64)
 		if err != nil {
-			f := "Invalid dial timeout '%v': %v"
-			return p, fmt.Errorf(f, strdialtimeout, err.Error())
+			f := "Invalid dial timeout '%v': %w"
+			return p, fmt.Errorf(f, strdialtimeout, err)
 		}
 		p.dial_timeout = time.Duration(timeout) * time.Second
 	}
@@ -141,8 +141,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 	if keepAlive, ok := params["keepalive"]; ok {
 		timeout, err := strconv.ParseUint(keepAlive, 10, 64)
 		if err != nil {
-			f := "Invalid keepAlive value '%s': %s"
-			return p, fmt.Errorf(f, keepAlive, err.Error())
+			f := "Invalid keepAlive value '%s': %w"
+			return p, fmt.Errorf(f, keepAlive, err)
 		}
 		p.keepAlive = time.Duration(timeout) * time.Second
 	}
@@ -154,8 +154,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 			var err error
 			p.encrypt, err = strconv.ParseBool(encrypt)
 			if err != nil {
-				f := "Invalid encrypt '%s': %s"
-				return p, fmt.Errorf(f, encrypt, err.Error())
+				f := "Invalid encrypt '%s': %w"
+				return p, fmt.Errorf(f, encrypt, err)
 			}
 		}
 	} else {
@@ -166,8 +166,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 		var err error
 		p.trustServerCertificate, err = strconv.ParseBool(trust)
 		if err != nil {
-			f := "Invalid trust server certificate '%s': %s"
-			return p, fmt.Errorf(f, trust, err.Error())
+			f := "Invalid trust server certificate '%s': %w"
+			return p, fmt.Errorf(f, trust, err)
 		}
 	}
 	p.certificate = params["certificate"]
@@ -222,8 +222,8 @@ func parseConnectParams(dsn string) (connectParams, error) {
 		var err error
 		p.failOverPort, err = strconv.ParseUint(failOverPort, 0, 16)
 		if err != nil {
-			f := "Invalid tcp port '%v': %v"
-			return p, fmt.Errorf(f, failOverPort, err.Error())
+			f := "Invalid tcp port '%v': %w"
+			return p, fmt.Errorf(f, failOverPort, err)
 		}
 	}
 

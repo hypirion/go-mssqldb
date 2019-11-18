@@ -134,7 +134,7 @@ func (b *Bulk) sendBulkCommand(ctx context.Context) (err error) {
 
 	stmt, err := b.cn.PrepareContext(ctx, query)
 	if err != nil {
-		return fmt.Errorf("Prepare failed: %s", err.Error())
+		return fmt.Errorf("Prepare failed: %w", err)
 	}
 	b.dlogf(query)
 
@@ -196,7 +196,7 @@ func (b *Bulk) makeRowData(row []interface{}) ([]byte, error) {
 		}
 		param, err := b.makeParam(row[i], col)
 		if err != nil {
-			return nil, fmt.Errorf("bulkcopy: %s", err.Error())
+			return nil, fmt.Errorf("bulkcopy: %w", err)
 		}
 
 		if col.ti.Writer == nil {
@@ -205,7 +205,7 @@ func (b *Bulk) makeRowData(row []interface{}) ([]byte, error) {
 		}
 		err = col.ti.Writer(buf, param.ti, param.buffer)
 		if err != nil {
-			return nil, fmt.Errorf("bulkcopy: %s", err.Error())
+			return nil, fmt.Errorf("bulkcopy: %w", err)
 		}
 	}
 
@@ -303,7 +303,7 @@ func (b *Bulk) getMetadata(ctx context.Context) (err error) {
 	}
 	rows, err := stmt.QueryContext(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("get columns info failed: %v", err)
+		return fmt.Errorf("get columns info failed: %w", err)
 	}
 	b.metadata = rows.(*Rows).cols
 
@@ -422,7 +422,7 @@ func (b *Bulk) makeParam(val DataValue, col columnStruct) (res param, err error)
 		case string:
 			var t time.Time
 			if t, err = time.Parse(sqlTimeFormat, val); err != nil {
-				return res, fmt.Errorf("bulk: unable to convert string to date: %v", err)
+				return res, fmt.Errorf("bulk: unable to convert string to date: %w", err)
 			}
 			res.buffer = encodeDateTime2(t, int(col.ti.Scale))
 			res.ti.Size = len(res.buffer)
@@ -438,7 +438,7 @@ func (b *Bulk) makeParam(val DataValue, col columnStruct) (res param, err error)
 		case string:
 			var t time.Time
 			if t, err = time.Parse(sqlTimeFormat, val); err != nil {
-				return res, fmt.Errorf("bulk: unable to convert string to date: %v", err)
+				return res, fmt.Errorf("bulk: unable to convert string to date: %w", err)
 			}
 			res.buffer = encodeDateTimeOffset(t, int(col.ti.Scale))
 			res.ti.Size = len(res.buffer)
@@ -454,7 +454,7 @@ func (b *Bulk) makeParam(val DataValue, col columnStruct) (res param, err error)
 		case string:
 			var t time.Time
 			if t, err = time.ParseInLocation(sqlDateFormat, val, time.UTC); err != nil {
-				return res, fmt.Errorf("bulk: unable to convert string to date: %v", err)
+				return res, fmt.Errorf("bulk: unable to convert string to date: %w", err)
 			}
 			res.buffer = encodeDate(t)
 			res.ti.Size = len(res.buffer)
@@ -469,7 +469,7 @@ func (b *Bulk) makeParam(val DataValue, col columnStruct) (res param, err error)
 			t = val
 		case string:
 			if t, err = time.Parse(sqlTimeFormat, val); err != nil {
-				return res, fmt.Errorf("bulk: unable to convert string to date: %v", err)
+				return res, fmt.Errorf("bulk: unable to convert string to date: %w", err)
 			}
 		default:
 			err = fmt.Errorf("mssql: invalid type for datetime column: %T %s", val, val)

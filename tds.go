@@ -710,8 +710,8 @@ func dialConnection(ctx context.Context, c *Connector, p connectParams) (conn ne
 	}
 	// Can't do the usual err != nil check, as it is possible to have gotten an error before a successful connection
 	if conn == nil {
-		f := "Unable to open tcp connection with host '%v:%v': %v"
-		return nil, fmt.Errorf(f, p.host, p.port, err.Error())
+		f := "Unable to open tcp connection with host '%v:%v': %w"
+		return nil, fmt.Errorf(f, p.host, p.port, err)
 	}
 	return conn, err
 }
@@ -729,8 +729,8 @@ func connect(ctx context.Context, c *Connector, log optionalLogger, p connectPar
 		d := c.getDialer(&p)
 		instances, err := getInstances(dialCtx, d, p.host)
 		if err != nil {
-			f := "Unable to get instances from Sql Server Browser on host %v: %v"
-			return nil, fmt.Errorf(f, p.host, err.Error())
+			f := "Unable to get instances from Sql Server Browser on host %v: %w"
+			return nil, fmt.Errorf(f, p.host, err)
 		}
 		strport, ok := instances[p.instance]["tcp"]
 		if !ok {
@@ -739,8 +739,8 @@ func connect(ctx context.Context, c *Connector, log optionalLogger, p connectPar
 		}
 		p.port, err = strconv.ParseUint(strport, 0, 16)
 		if err != nil {
-			f := "Invalid tcp port returned from Sql Server Browser '%v': %v"
-			return nil, fmt.Errorf(f, strport, err.Error())
+			f := "Invalid tcp port returned from Sql Server Browser '%v': %w"
+			return nil, fmt.Errorf(f, strport, err)
 		}
 	}
 
@@ -801,7 +801,7 @@ initiate_connection:
 		if p.certificate != "" {
 			pem, err := ioutil.ReadFile(p.certificate)
 			if err != nil {
-				return nil, fmt.Errorf("Cannot read certificate %q: %v", p.certificate, err)
+				return nil, fmt.Errorf("Cannot read certificate %q: %w", p.certificate, err)
 			}
 			certs := x509.NewCertPool()
 			certs.AppendCertsFromPEM(pem)
@@ -824,7 +824,7 @@ initiate_connection:
 		passthrough.c = toconn
 		outbuf.transport = tlsConn
 		if err != nil {
-			return nil, fmt.Errorf("TLS Handshake failed: %v", err)
+			return nil, fmt.Errorf("TLS Handshake failed: %w", err)
 		}
 		if encrypt == encryptOff {
 			outbuf.afterFirst = func() {
@@ -888,10 +888,10 @@ initiate_connection:
 				success = true
 				sess.loginAck = token
 			case error:
-				return nil, fmt.Errorf("Login error: %s", token.Error())
+				return nil, fmt.Errorf("Login error: %w", token)
 			case doneStruct:
 				if token.isError() {
-					return nil, fmt.Errorf("Login error: %s", token.getError())
+					return nil, fmt.Errorf("Login error: %w", token.getError())
 				}
 				goto loginEnd
 			}
